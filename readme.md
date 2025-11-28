@@ -1,21 +1,21 @@
-# LocalStack Learning Project: Serverless Async Architecture
+# LocalStack Learning Project
 
-LocalStack を使用して、AWS サーバーレスアーキテクチャ（S3, Lambda, SQS）と PostgreSQL の連携をローカル環境でシミュレーションする学習用プロジェクトです。
+LocalStack を使用して、AWS サーバーレスアーキテクチャ（S3, Lambda, SQS）と PostgreSQL の連携をローカル環境で行う学習用プロジェクト
 
-## 🏗️ アーキテクチャ
+## アーキテクチャ
 
 **データフロー:**
 `S3 (PutObject)` -\> `Lambda (Producer)` -\> `SQS` -\> `Lambda (Consumer)` -\> `PostgreSQL`
 (エラー時: `SQS` -\> `SQS_DL (Dead Letter Queue)`)
 
-1.  **S3**: ファイルアップロードを検知（トリガー）。
+1.  **S3**: ファイルアップロードを検知。
 2.  **Lambda 1 (`s3_handler.py`)**: S3 イベントを受け取り、ファイル情報を SQS に送信。
 3.  **SQS**: メッセージをキューイングし、非同期処理と疎結合を実現。
 4.  **Lambda 2 (`lambda_function.py`)**: SQS メッセージをポーリングして起動し、データを PostgreSQL に保存。
 5.  **PostgreSQL**: データの永続化。
 6.  **SQS\_DL (DLQ)**: 処理に失敗したメッセージを退避（3回リトライ後に移動）。
 
-## 📂 ディレクトリ構成
+## ディレクトリ構成
 
 ```text
 .
@@ -28,14 +28,14 @@ LocalStack を使用して、AWS サーバーレスアーキテクチャ（S3, L
 └── postgres_data/       # DBデータ永続化ディレクトリ (Git対象外)
 ```
 
-## ✅ 前提条件
+## 前提条件
 
   * **Docker Desktop**: 起動中であること (Running)。
   * **Git**: インストール済みであること。
 
 -----
 
-## 🚀 環境構築 (Setup)
+## 環境構築 (Setup)
 
 ### 1\. プロジェクトの起動
 
@@ -55,9 +55,9 @@ docker compose exec cli bash
 
 -----
 
-## ⚙️ リソースのデプロイ (Deployment)
+## リソースのデプロイ (Deployment)
 
-コンテナ内 (`root@...:/app#`) で以下の手順を順に実行し、LocalStack 上にリソースを作成します。
+CLIコンテナ内 (`root@...:/app#`) で以下の手順を順に実行し、LocalStack 上にリソースを作成します。
 **※ 初回起動時や `docker compose down` 後に必ず実行してください。**
 
 ### Step 1: 環境変数の設定
@@ -159,7 +159,7 @@ awslocal sqs set-queue-attributes \
 
 -----
 
-## 🧪 動作確認 (Usage)
+## 動作確認
 
 ### 1\. テストデータのアップロード
 
@@ -185,7 +185,7 @@ PGPASSWORD=localpassword psql -h postgres -p 5432 -U localuser -d localdb -c "SE
 
 -----
 
-## 📊 モニタリング & GUI
+## データ確認
 
 ブラウザからリソースやデータを確認できます。
 
