@@ -56,6 +56,17 @@ services:
     tty: true
     stdin_open: true
 
+  # 4. ブラウザでDBを見るためのツール
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080  # ホストの8081ポートでアクセス
+    networks:
+      - local-net
+    depends_on:
+      - postgres
+
 # ユーザー定義ネットワーク
 networks:
   local-net:
