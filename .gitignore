@@ -1,0 +1,28 @@
+# .gitignore
+
+# データベースの永続化データ (最重要: 絶対にコミットしない)
+postgres_data/
+
+# Pythonの一時ファイル
+__pycache__/
+*.pyc
+
+# Lambdaデプロイ用の一時ファイル
+function.zip
+*.zip
+
+# VS Code設定 (共有しない場合)
+.vscode/
+
+# ログファイル
+*.log
+
+# テスト用の一時ファイル
+testfile*.txt
+batch*.txt
+aws-psycopg2*.txt
+message_to_delete.json
+
+# OS生成ファイル
+Thumbs.db
+.DS_Store

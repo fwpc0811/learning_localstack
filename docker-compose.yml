@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # 1. LocalStack 本体
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    # 必要なサービスを起動時に指定
+    environment:
+      - SERVICES=s3,lambda,sqs,logs
+      - DEFAULT_REGION=us-east-1
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - "4566-4599:4566-4599"  # APIポート
+      - "8080:8080"           # Web UIポート
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    # LocalStackのコンテナと他のサービスを同じユーザー定義ネットワークに接続
+    networks:
+      - local-net
+
+  # 2. PostgreSQL データベース
+  postgres:
+    container_name: postgres
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=localuser
+      - POSTGRES_PASSWORD=localpassword
+      - POSTGRES_DB=localdb
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data  # 永続化ボリューム
+      - ./initdb:/docker-entrypoint-initdb.d # ホストのDDLファイルをコンテナの初期化ディレクトリにマウント
+    ports:
+      - "5432:5432"
+    networks:
+      - local-net # LocalStackと同じネットワーク
+    # LocalStackが先に起動してからDBを起動させる（必須ではないが推奨）
+    depends_on:
+      - localstack
+
+  # 3. Python/CLI 環境 (Lambda デプロイ・テスト用)
+  cli:
+    container_name: python_cli
+    # Dockerfileからイメージをビルド
+    build: .
+    volumes:
+      - ./python/src:/app # ホストの現在のディレクトリを /app にマウント
+    networks:
+      - local-net # LocalStackやPostgresと同じネットワーク
+    # DBコンテナの起動を待つ
+    depends_on:
+      - postgres
+    working_dir: /app
+    # コンテナ起動時に自動でシェルに入る
+    tty: true
+    stdin_open: true
+
+# ユーザー定義ネットワーク
+networks:
+  local-net:
+    driver: bridge
