@@ -66,6 +66,17 @@ services:
       - local-net
     depends_on:
       - postgres
+  # 5. React フロントエンド (追加)
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # ホストのnode_modulesを無視してコンテナ内のものを使う
+    networks:
+      - local-net
 
 # ユーザー定義ネットワーク
 networks:
