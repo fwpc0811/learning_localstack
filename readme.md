@@ -157,6 +157,17 @@ awslocal sqs set-queue-attributes \
     --attributes "{\"RedrivePolicy\": \"{\\\"deadLetterTargetArn\\\":\\\"$DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}"
 ```
 
+## フロントエンドの起動と設定 (Optional)
+
+ブラウザからファイルをアップロードする React アプリを利用する場合の手順です。
+
+### 1. CORS 設定の適用
+ブラウザからの S3 アクセスを許可するため、CLIコンテナ内で以下を実行します。
+
+```bash
+echo '{"CORSRules": [{"AllowedHeaders": ["*"], "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"], "AllowedOrigins": ["*"], "ExposeHeaders": ["ETag"]}]}' > cors.json
+awslocal s3api put-bucket-cors --bucket my-local-s3-bucket --cors-configuration file://cors.json
+
 -----
 
 ## 動作確認
