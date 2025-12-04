@@ -32,9 +32,20 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     ./aws/install && \
     rm -rf awscliv2.zip aws
 
+# エントリポイントスクリプトをコピー
+COPY entrypoint.sh /usr/local/bin/
+# 実行権限を付与 (Windows環境で作ったファイル用)
+RUN chmod +x /usr/local/bin/entrypoint.sh
+# 改行コードの自動修正 (Windowsで作成した場合のトラブル防止)
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh
+
 # 5. Python依存関係（awslocalとpsycopg2）のインストール
 # /appを作業ディレクトリに設定
 WORKDIR /app
+
+# エントリポイントを設定
+ENTRYPOINT ["entrypoint.sh"]
+
 # psycopg2-binaryとawscli-localをインストールし、/appに配置
 RUN pip install --no-cache-dir \
     psycopg2-binary \
@@ -44,3 +55,4 @@ RUN pip install --no-cache-dir \
 # ホストOS側で LambdaコードとZIPファイルを作成するため、コピーや最終ZIP化は手動で行う
 # CMD ["bash"] を残しておき、ユーザーがシェルに入れるようにする
 CMD ["bash"]
+
